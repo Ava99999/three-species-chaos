@@ -57,12 +57,11 @@ axis tight;
 
 %% perturbation plot time series
 figure;
-plot(t(1:501),X(1:501,1));
+plot(t(ts:te),X(ts:te,1));
 hold on;
-plot(t2(1:501),X2(1:501,1));
+plot(t(ts:te),X(ts:te,1));
 
 xlabel('t');
 ylabel('x');
 axis tight;
 ylim([0.1 1]);
-hold off;
