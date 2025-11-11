@@ -2,8 +2,9 @@
 param.a1 = 5;
 param.a2 = 0.1;
 param.b1 = 3; % varies between 2 and 6.2
+param.b1_r = 2.2:0.01:6.2; %2.9:0.01:4.2; 
 param.b2 = 2;
-param.d1 = 0.4;
+param.d1 = 0.4; 
 param.d2 = 0.01;
 param.ic1 = [0.76, 0.16, 9.9]; % specific to reproduction figure 2
 
@@ -15,3 +16,6 @@ param.N = 10000;
 param.T = 10000;
 param.dt = param.T/param.N;
 param.t = [0:(param.N -1)]*param.dt;
+
+% bifurcation plot
+param.NB = 1000; %N_Bifurcation
