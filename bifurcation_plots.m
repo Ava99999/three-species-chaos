@@ -13,20 +13,19 @@ ic = param.ic1; % initial condition from reprod. paper
 options = odeset('RelTol',1e-8,'abstol',1e-8*[1,1,1]);
 
 %% bifurcation
-Z = zeros(param.NB, length(param.b1_r)); % record timestep values
-Z_locmax = zeros(param.NB, length(param.b1_r)); % record local maxima
-Z_max = zeros(length(param.b1_r),1); % record global maxima
-Z_min = zeros(length(param.b1_r),1); % record global minima
-errors = zeros(length(param.b1_r),1); % in case no cycling behavior is found
+Z = zeros(param.NB, length(param.b2_r)); % record timestep values
+Z_locmax = zeros(param.NB, length(param.b2_r)); % record local maxima
+Z_max = zeros(length(param.b2_r),1); % record global maxima
+Z_min = zeros(length(param.b2_r),1); % record global minima
+errors = zeros(length(param.b2_r),1); % in case no cycling behavior is found
 margin = 0.66;
-% TODO i don't think that will occur here because i forced the length to be
-% 10000
 
 tic
-parfor j = 1:length(param.b1_r)
+parfor j = 1:length(param.b2_r)
     % solve the ode 
     f1_loc = @(u) param.a1*u/(1 + param.b1_r(j)*u); % functional response f1 local
-    [t,X] = ode45(@(t,y) superpredators(t,y,f1_loc,f2,param.d1,param.d2),tspan, ic, options);
+    f2_loc = @(u) param.a2*u/(1 + param.b2_r(j)*u); % functional response f1 local
+    [t,X] = ode45(@(t,y) superpredators(t,y,f1,f2_loc,param.d1,param.d2),tspan, ic, options);
     
     % sanity check if using dynamic number of steps
     if length(X(:,3)) > param.NB
@@ -42,7 +41,7 @@ toc
 
 tic
 % select the local maxima that are large enough compared to the cycle
-for j = 1:length(param.b1_r)
+for j = 1:length(param.b2_r)
    for i = 2:(param.NB-1) % todo does the first index matter?
        % identify maxima
        if Z(i,j) >= Z(i-1,j) && Z(i,j) >= Z(i+1,j)
@@ -51,6 +50,8 @@ for j = 1:length(param.b1_r)
             if Z(i,j) > (Z_min(j) + margin*Z_range)
                 Z_locmax(i,j) = Z(i,j);
                 
+                % temp check
+                %{
                 if param.b1_r(j)==3.0
                     fprintf("value of b1 ")
                     param.b1_r(j)
@@ -61,6 +62,7 @@ for j = 1:length(param.b1_r)
                     fprintf("value after")
                     Z(i+1,j)
                 end
+                %}
             end
        end
    end
@@ -69,26 +71,30 @@ toc
 
 %% plot results
 % copies of the parameter range, long row vector
-B1 = repelem(param.b1_r,1,param.NB); 
+B2 = repelem(param.b2_r,1,param.NB); 
 Z_temp = reshape(Z_locmax,1,[]);
-plot_matrix = [B1; Z_temp];
+plot_matrix = [B2; Z_temp];
 % remove duplicate maxima/minima
 plot_points = unique(plot_matrix',"rows", 'stable'); 
 indices = find(plot_points(:,2)==0);
 plot_points(indices,:) = [];
 
-% plot of all points
+% temporary plot
 figure('Units','inches','Position',[1 1 6 4]);
 set(gcf,'Renderer','zbuffer')
-sz = 4;
+sz = 1;
 scatter(plot_points(:,1), plot_points(:,2), sz,'black','filled');
-xlim([2.25 2.6]);
-ylim([11.4 12.8]);
-xlabel("b_1");
+xlim([1.5 3.2]);
+ylim([0 12]);
+xlabel("b_2");
 ylabel("z_{max}")
-title('c');
-ax = gca;
-ax.TitleHorizontalAlignment = 'left';
+%title('a');
+%ax = gca;
+%ax.TitleHorizontalAlignment = 'left';
+
+%{
+% plot of all points
+figure('Units','inches','Position',[1 1 6 4]);
 set(gcf,'Renderer','zbuffer')
 sz = 2;
 scatter(plot_points(:,1), plot_points(:,2), sz,'black','filled');
@@ -99,16 +105,6 @@ ylabel("z_{max}")
 
 % figure 4a
 figure('Units','inches','Position',[1 1 6 4]);
-set(gcf,'Renderer','zbuffer')
-sz = 4;
-scatter(plot_points(:,1), plot_points(:,2), sz,'black','filled');
-xlim([2.25 2.6]);
-ylim([11.4 12.8]);
-xlabel("b_1");
-ylabel("z_{max}")
-title('c');
-ax = gca;
-ax.TitleHorizontalAlignment = 'left';
 set(gcf,'Renderer','zbuffer')
 sz = 2;
 scatter(plot_points(:,1), plot_points(:,2), sz,'black','filled');
@@ -123,19 +119,9 @@ ax.TitleHorizontalAlignment = 'left';
 % figure 4b
 figure('Units','inches','Position',[1 1 6 4]);
 set(gcf,'Renderer','zbuffer')
-sz = 4;
-scatter(plot_points(:,1), plot_points(:,2), sz,'black','filled');
-xlim([2.25 2.6]);
-ylim([11.4 12.8]);
-xlabel("b_1");
-ylabel("z_{max}")
-title('c');
-ax = gca;
-ax.TitleHorizontalAlignment = 'left';
-set(gcf,'Renderer','zbuffer')
 sz = 1;
 scatter(plot_points(:,1), plot_points(:,2), sz,'black','filled');
-xlim([3 6.5]);
+xlim([3.2 6.5]);
 ylim([3 10]);
 xlabel("b_1");
 ylabel("z_{max}")
@@ -146,7 +132,7 @@ ax.TitleHorizontalAlignment = 'left';
 % figure 4c
 figure('Units','inches','Position',[1 1 6 4]);
 set(gcf,'Renderer','zbuffer')
-sz = 4;
+sz = 1;
 scatter(plot_points(:,1), plot_points(:,2), sz,'black','filled');
 xlim([2.25 2.6]);
 ylim([11.4 12.8]);
@@ -155,3 +141,4 @@ ylabel("z_{max}")
 title('c');
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
+%}
