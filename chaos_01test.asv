@@ -21,8 +21,9 @@ options = odeset('RelTol',1e-8,'abstol',1e-8*[1,1,1]);
 %% sample
 %N = param.N - param.NT;
 t_start = param.NT+1;
+t_range = 2000;
+t_end = t_start + t_range;
 t_zrange = t(t_start:end);
-t_end = 2000; % number of timesteps to plot
 Z = X(t_start:end,3); % time series
 indices = 1:20:length(Z); % to sample
 phi = Z(indices);
@@ -34,41 +35,16 @@ test_c = param.c;
 [p,q] = create_p_q(param.c,N,phi);
 [M,N0] = create_M(param.c,p,q,N);
 [D,V_osc] = create_D(param.c,M,N,mean_phi);
-[K_seq,K] = correlation_method(N0,param.c,D); 
+[K_seq,K] = correlation_method(N0,param.c,M); % can put D in place of M if oscillates
 
 %% plots
 % time series
 figure;
-plot(t_zrange(1:t_end),Z(1:t_end));
+plot(t(t_start:t_end),Z(1:t_range));
 xlabel('t');
 ylabel('z');
 axis tight;
 ylim([7.2 10.7]);
-
-% (p,q)-dynamics for a specific c
-c_index = 10;
-figure;
-plot(p(c_index,:),q(c_index,:));
-xlabel('p');
-ylabel('q');
-axis tight;
-
-% comparing M and D for a specific c
-figure;
-plot(1:N0, M(c_index,:),'b-');
-hold on;
-plot(1:N0, D(c_index,:), 'r--');
-plot(1:N0, V_osc(c_index,:), 'g');
-hold off;
-xlabel('n');
-legend('M', 'D', 'V_osc');
-axis tight;
-
-% correlation coefficient
-figure;
-plot(param.c, K_seq);
-xlabel('c');
-ylabel('K_c');
 
 %% functions
 function [p,q] = create_p_q(c,N,phi)
