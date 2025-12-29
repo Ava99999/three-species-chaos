@@ -1,9 +1,9 @@
 % system
 param.a1 = 5;
 param.a2 = 0.1;
-param.b1 = 2.25; %3; % varies between 2 and 6.2
+param.b1 = 3; %2.25; % varies between 2 and 6.2
 param.b1_r = 3.6:0.001:4; %2.2:0.01:6.2; %2.25:0.001:2.6;  %2.9:0.01:4.2; 
-param.b2 = 1.6; %2;
+param.b2 = 2; %1.6; %2;
 param.b2_r = 1.5:0.01:3.2;
 param.d1 = 0.4; 
 param.d2 = 0.01;
