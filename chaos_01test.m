@@ -9,7 +9,7 @@ f2 = @(u) param.a2*u/(1 + param.b2*u); % functional response f2
 
 %% parameters ode
 tspan = param.t; %[t0,T];
-ic = param.ic2; % initial condition for the 01-test
+ic = param.ic1; % initial condition for the 01-test
 options = odeset('RelTol',1e-8,'abstol',1e-8*[1,1,1]);
 
 %% solve ode
@@ -43,14 +43,19 @@ plot(t_zrange(1:t_end),Z(1:t_end));
 xlabel('t');
 ylabel('z');
 axis tight;
-ylim([7.2 10.7]);
+%ylim([7.2 10.7]);
 
 % (p,q)-dynamics for a specific c
 c_index = 10;
+fprintf('Value of c used = %.6g\n', test_c(c_index));
 figure;
-plot(p(c_index,:),q(c_index,:));
+%plot(p(c_index,1:500),q(c_index,1:500));
+p_lot = plot(p(c_index,:),q(c_index,:));
+p_lot.LineWidth = 0.1;
 xlabel('p');
 ylabel('q');
+%xlim([-25 15]);
+%ylim([-5 35]);
 axis tight;
 
 % comparing M and D for a specific c
@@ -61,14 +66,18 @@ plot(1:N0, D(c_index,:), 'r--');
 plot(1:N0, V_osc(c_index,:), 'g');
 hold off;
 xlabel('n');
-legend('M', 'D', 'V_osc');
+legend('M', 'D', 'V_{osc}');
 axis tight;
 
 % correlation coefficient
 figure;
 plot(param.c, K_seq);
+hold on;
+scatter(param.c, K_seq, "x", 'MarkerEdgeColor', [0 0.4470 0.7410]);
+hold off;
 xlabel('c');
 ylabel('K_c');
+title(sprintf('Median value = %.4g', K));
 
 %% functions
 function [p,q] = create_p_q(c,N,phi)

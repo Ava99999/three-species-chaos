@@ -13,19 +13,19 @@ ic = param.ic1; % initial condition from reprod. paper
 options = odeset('RelTol',1e-8,'abstol',1e-8*[1,1,1]);
 
 %% bifurcation
-Z = zeros(param.NB, length(param.b2_r)); % record timestep values
-Z_locmax = zeros(param.NB, length(param.b2_r)); % record local maxima
-Z_max = zeros(length(param.b2_r),1); % record global maxima
-Z_min = zeros(length(param.b2_r),1); % record global minima
-errors = zeros(length(param.b2_r),1); % in case no cycling behavior is found
+Z = zeros(param.NB, length(param.b1_r)); % record timestep values
+Z_locmax = zeros(param.NB, length(param.b1_r)); % record local maxima
+Z_max = zeros(length(param.b1_r),1); % record global maxima
+Z_min = zeros(length(param.b1_r),1); % record global minima
+errors = zeros(length(param.b1_r),1); % in case no cycling behavior is found
 margin = 0.66;
 
 tic
-parfor j = 1:length(param.b2_r)
+parfor j = 1:length(param.b1_r)
     % solve the ode 
     f1_loc = @(u) param.a1*u/(1 + param.b1_r(j)*u); % functional response f1 local
     f2_loc = @(u) param.a2*u/(1 + param.b2_r(j)*u); % functional response f1 local
-    [t,X] = ode45(@(t,y) superpredators(t,y,f1,f2_loc,param.d1,param.d2),tspan, ic, options);
+    [t,X] = ode45(@(t,y) superpredators(t,y,f1_loc,f2,param.d1,param.d2),tspan, ic, options);
     
     % sanity check if using dynamic number of steps
     if length(X(:,3)) > param.NB
@@ -41,7 +41,7 @@ toc
 
 tic
 % select the local maxima that are large enough compared to the cycle
-for j = 1:length(param.b2_r)
+for j = 1:length(param.b1_r)
    for i = 2:(param.NB-1) % todo does the first index matter?
        % identify maxima
        if Z(i,j) >= Z(i-1,j) && Z(i,j) >= Z(i+1,j)
@@ -71,14 +71,15 @@ toc
 
 %% plot results
 % copies of the parameter range, long row vector
-B2 = repelem(param.b2_r,1,param.NB); 
+B1 = repelem(param.b1_r,1,param.NB); 
 Z_temp = reshape(Z_locmax,1,[]);
-plot_matrix = [B2; Z_temp];
+plot_matrix = [B1; Z_temp];
 % remove duplicate maxima/minima
 plot_points = unique(plot_matrix',"rows", 'stable'); 
 indices = find(plot_points(:,2)==0);
 plot_points(indices,:) = [];
 
+%{
 % temporary plot
 figure('Units','inches','Position',[1 1 6 4]);
 set(gcf,'Renderer','zbuffer')
@@ -91,8 +92,8 @@ ylabel("z_{max}")
 %title('a');
 %ax = gca;
 %ax.TitleHorizontalAlignment = 'left';
+%}
 
-%{
 % plot of all points
 figure('Units','inches','Position',[1 1 6 4]);
 set(gcf,'Renderer','zbuffer')
@@ -141,4 +142,3 @@ ylabel("z_{max}")
 title('c');
 ax = gca;
 ax.TitleHorizontalAlignment = 'left';
-%}

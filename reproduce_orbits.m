@@ -55,6 +55,11 @@ grid on;
 set(gcf, 'Position', [100 100 600 600])  % [left bottom width height]
 axis tight;
 
+view([45 30]);
+set(gca, 'XDir', 'normal');
+set(gca, 'YDir', 'reverse');
+
+
 %% perturbation plot time series
 figure;
 plot(t(1:501),X(1:501,1));
@@ -66,3 +71,65 @@ ylabel('x');
 axis tight;
 ylim([0.1 1]);
 hold off;
+
+%{
+%% chatgpt videoplot
+% PARAMETERS
+t_end = min(20000, te);
+step  = 1;
+fps   = 30;
+outfile = 'trajectory_3d.mp4';
+
+idx = ts:step:t_end;
+
+% FIXED AXIS LIMITS (computed once)
+xlims = [min(X(idx,1)) max(X(idx,1))];
+ylims = [min(X(idx,2)) max(X(idx,2))];
+zlims = [min(X(idx,3)) max(X(idx,3))];
+
+% VIDEO SETUP
+v = VideoWriter(outfile, 'MPEG-4');
+v.FrameRate = fps;
+open(v);
+
+% FIGURE SETUP
+fig = figure('Position', [100 100 600 600]);
+ax = axes(fig);
+hold(ax, 'on');
+grid(ax, 'on');
+
+xlabel(ax, 'x');
+ylabel(ax, 'y');
+zlabel(ax, 'z');
+
+xlim(ax, xlims);
+ylim(ax, ylims);
+zlim(ax, zlims);
+
+view(ax, [45 30]);
+set(ax, 'XDir', 'normal', 'YDir', 'reverse');
+
+% PREALLOCATED LINE (FAST)
+p = plot3(ax, NaN, NaN, NaN, 'k', 'LineWidth', 1);
+
+% OPTIONAL: moving point
+h = plot3(ax, NaN, NaN, NaN, 'ro', 'MarkerFaceColor','r');
+
+% ANIMATION LOOP
+for k = 1:numel(idx)
+    i = idx(1:k);
+
+    p.XData = X(i,1);
+    p.YData = X(i,2);
+    p.ZData = X(i,3);
+
+    h.XData = X(idx(k),1);
+    h.YData = X(idx(k),2);
+    h.ZData = X(idx(k),3);
+
+    drawnow limitrate
+    writeVideo(v, getframe(fig));
+end
+
+close(v);
+%}
