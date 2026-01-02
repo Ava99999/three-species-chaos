@@ -22,6 +22,8 @@ options = odeset('RelTol',1e-8,'abstol',1e-8*[1,1,1]);
 %% time series plots
 ts = 4999;
 te = 6499;
+%ts = 1999;
+%te = 9499;
 
 figure;
 plot(t(ts:te),X(ts:te,1));
@@ -53,6 +55,7 @@ zlabel('z');
 p.Color = "black";
 grid on;
 set(gcf, 'Position', [100 100 600 600])  % [left bottom width height]
+title(sprintf('b_1 = %.4g', param.b1));
 axis tight;
 
 view([45 30]);
